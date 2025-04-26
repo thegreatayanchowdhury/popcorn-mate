@@ -3,17 +3,13 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import ast
 
-# Load both datasets
 movies = pd.read_csv("tmdb_5000_movies.csv")
 credits = pd.read_csv("tmdb_5000_credits.csv")
 
-# Merge on title
 movies = movies.merge(credits, on='title')
 
-# Keep only required columns
 movies = movies[['movie_id', 'title', 'overview', 'genres', 'keywords', 'cast', 'crew']]
 
-# Parse JSON-like columns
 def convert(obj):
     return [i['name'] for i in ast.literal_eval(obj)]
 
@@ -27,10 +23,9 @@ movies.dropna(inplace=True)
 
 movies['genres'] = movies['genres'].apply(convert)
 movies['keywords'] = movies['keywords'].apply(convert)
-movies['cast'] = movies['cast'].apply(lambda x: convert(x)[:3])  # top 3 cast members
+movies['cast'] = movies['cast'].apply(lambda x: convert(x)[:3])  # top 3 cast
 movies['crew'] = movies['crew'].apply(get_director)
 
-# Create a combined column
 movies['tags'] = (
     movies['overview'] + " " +
     movies['genres'].apply(lambda x: " ".join(x)) + " " +
@@ -39,18 +34,16 @@ movies['tags'] = (
     movies['crew']
 )
 
-# Vectorize
+
 cv = CountVectorizer(max_features=5000, stop_words='english')
 vectors = cv.fit_transform(movies['tags']).toarray()
 
-# Similarity matrix
 similarity = cosine_similarity(vectors)
 
-# Recommend function
 def recommend(movie):
     movie = movie.lower()
     if movie not in movies['title'].str.lower().values:
-        print("Movie not found in dataset.")
+        print("Movie not foun!!!!!")
         return
 
     index = movies[movies['title'].str.lower() == movie].index[0]
@@ -61,6 +54,6 @@ def recommend(movie):
     for i in movie_list:
         print("→", movies.iloc[i[0]]['title'])
 
-print("=== AI Movie Recommender ===")
-name = input("Enter a movie you like: ")
+print("=== popcorn mate ===")
+name = input("Enter a movie you are watching: ")
 recommend(name)
